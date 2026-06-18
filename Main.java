@@ -172,7 +172,7 @@ class MyTemplate {
 }
 
 class FastIO {
-    private static final int BUFFER_SIZE = 1 << 16; // 64KB buffers
+    private static final int BUFFER_SIZE = 1 << 16;
     private final DataInputStream din;
     private final byte[] buffer;
     private int bufferPointer, bytesRead;
@@ -191,126 +191,192 @@ class FastIO {
         outPointer = 0;
     }
 
-    // High-performance primitive integer reader (bypasses StringTokenizer)
+    public String nextLine() throws IOException {
+        byte[] buf = new byte[64];
+        int cnt = 0, c;
+        while ((c = read()) != -1) {
+            if (c == '\n') {
+                if (cnt != 0) break;
+                else continue;
+            }
+            if (cnt == buf.length) {
+                buf = Arrays.copyOf(buf, buf.length * 2);
+            }
+            buf[cnt++] = (byte) c;
+        }
+        return new String(buf, 0, cnt);
+    }
+
+    public String next() throws IOException {
+        byte[] buf = new byte[64];
+        int cnt = 0;
+        byte c = read();
+        while (c <= ' ') {
+            c = read();
+        }
+        while (c > ' ') {
+            if (cnt == buf.length) {
+                buf = Arrays.copyOf(buf, buf.length * 2);
+            }
+            buf[cnt++] = c;
+            c = read();
+        }
+        return new String(buf, 0, cnt);
+    }
+
     public int nextInt() throws IOException {
         int ret = 0;
         byte c = read();
-        while (c <= ' ') {
-            c = read();
-        }
+        while (c <= ' ') c = read();
         boolean neg = (c == '-');
-        if (neg) {
-            c = read();
-        }
+        if (neg) c = read();
         do {
             ret = ret * 10 + c - '0';
         } while ((c = read()) >= '0' && c <= '9');
-
-        if (neg) return -ret;
-        return ret;
+        return neg ? -ret : ret;
     }
 
-    // High-performance primitive long reader
     public long nextLong() throws IOException {
         long ret = 0;
         byte c = read();
-        while (c <= ' ') {
-            c = read();
-        }
+        while (c <= ' ') c = read();
         boolean neg = (c == '-');
-        if (neg) {
-            c = read();
-        }
+        if (neg) c = read();
         do {
             ret = ret * 10 + c - '0';
         } while ((c = read()) >= '0' && c <= '9');
-
-        if (neg) return -ret;
-        return ret;
+        return neg ? -ret : ret;
     }
 
-    // High-performance primitive double reader
     public double nextDouble() throws IOException {
         double ret = 0, div = 1;
         byte c = read();
-        while (c <= ' ') {
-            c = read();
-        }
+        while (c <= ' ') c = read();
         boolean neg = (c == '-');
-        if (neg) {
-            c = read();
-        }
+        if (neg) c = read();
         do {
             ret = ret * 10 + c - '0';
         } while ((c = read()) >= '0' && c <= '9');
-
         if (c == '.') {
             while ((c = read()) >= '0' && c <= '9') {
                 ret += (c - '0') / (div *= 10);
             }
         }
-
-        if (neg) return -ret;
-        return ret;
+        return neg ? -ret : ret;
     }
 
-    // High-performance primitive character writer
-    public void print(char c) throws IOException {
-        if (outPointer == BUFFER_SIZE) {
-            flushBuffer();
+    public char nextChar() throws IOException {
+        byte c = read();
+        while (c <= ' ') c = read();
+        return (char) c;
+    }
+
+    public int[] readIntArray(int size) throws IOException {
+        int[] arr = new int[size];
+        for (int i = 0; i < size; i++) {
+            arr[i] = nextInt();
         }
+        return arr;
+    }
+
+    public long[] readLongArray(int size) throws IOException {
+        long[] arr = new long[size];
+        for (int i = 0; i < size; i++) {
+            arr[i] = nextLong();
+        }
+        return arr;
+    }
+
+    // --- PRIMITIVE BASIC PRINTS ---
+    public void print(char c) throws IOException {
+        if (outPointer == BUFFER_SIZE) flushBuffer();
         outBuffer[outPointer++] = (byte) c;
     }
 
-    // High-performance primitive integer writer (No String allocations)
     public void print(int i) throws IOException {
-        if (i == 0) {
-            print('0');
-            return;
-        }
-        if (i < 0) {
-            print('-');
-            i = -i;
-        }
-        int index = 0;
+        if (i == 0) { print('0'); return; }
+        if (i < 0) { print('-'); i = -i; }
+        int idx = 0;
         byte[] temp = new byte[12];
-        while (i > 0) {
-            temp[index++] = (byte) ((i % 10) + '0');
-            i /= 10;
-        }
-        while (index > 0) {
-            print((char) temp[--index]);
-        }
+        while (i > 0) { temp[idx++] = (byte) ((i % 10) + '0'); i /= 10; }
+        while (idx > 0) print((char) temp[--idx]);
+    }
+
+    public void print(long l) throws IOException {
+        if (l == 0) { print('0'); return; }
+        if (l < 0) { print('-'); l = -l; }
+        int idx = 0;
+        byte[] temp = new byte[20];
+        while (l > 0) { temp[idx++] = (byte) ((l % 10) + '0'); l /= 10; }
+        while (idx > 0) print((char) temp[--idx]);
     }
 
     public void print(String str) throws IOException {
-        for (int i = 0; i < str.length(); i++) {
-            print(str.charAt(i));
-        }
+        for (int i = 0; i < str.length(); i++) print(str.charAt(i));
     }
 
-    public void println(int i) throws IOException {
-        print(i);
+    public void println() throws IOException {
         print('\n');
     }
 
+    public void println(int i) throws IOException {
+        print(i); print('\n');
+    }
+
+    public void println(long l) throws IOException {
+        print(l); print('\n');
+    }
+
+    public void println(double d) throws IOException {
+        print(Double.toString(d)); print('\n');
+    }
+
     public void println(String str) throws IOException {
-        print(str);
+        print(str); print('\n');
+    }
+
+    public void printArray(int[] arr) throws IOException {
+        for (int i = 0; i < arr.length; i++) {
+            print(arr[i]);
+            if (i < arr.length - 1) print(' ');
+        }
+        print('\n');
+    }
+
+    public void printArray(long[] arr) throws IOException {
+        for (int i = 0; i < arr.length; i++) {
+            print(arr[i]);
+            if (i < arr.length - 1) print(' ');
+        }
+        print('\n');
+    }
+
+    public void printList(List<Integer> list) throws IOException {
+        int sz = list.size();
+        for (int i = 0; i < sz; i++) {
+            print(list.get(i));
+            if (i < sz - 1) print(' ');
+        }
+        print('\n');
+    }
+
+    public void printLongList(List<Long> list) throws IOException {
+        int sz = list.size();
+        for (int i = 0; i < sz; i++) {
+            print(list.get(i));
+            if (i < sz - 1) print(' ');
+        }
         print('\n');
     }
 
     private byte read() throws IOException {
-        if (bufferPointer == bytesRead) {
-            fillBuffer();
-        }
+        if (bufferPointer == bytesRead) fillBuffer();
         return buffer[bufferPointer++];
     }
 
     private void fillBuffer() throws IOException {
         bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE);
-        if (bytesRead == -1) {
-            buffer[0] = -1;
-        }
+        if (bytesRead == -1) buffer[0] = -1;
     }
 
     private void flushBuffer() throws IOException {
