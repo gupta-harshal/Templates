@@ -38,17 +38,14 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         MyTemplate.FastIO jio = new MyTemplate().new FastIO();
-        MyTemplate.Calc calc = new MyTemplate().new Calc();
         int t = jio.nextInt();
-
+        
         while (t-- > 0) {
-
-            int n = jio.nextInt();
+            int n=jio.nextInt();
         }
+        jio.flush();
     }
 }
-
-
 /*end here--------------------*/
 class MyTemplate {
      class Calc{
@@ -169,162 +166,178 @@ class MyTemplate {
 	}
 
 	/** @return nCr mod p */
-	private static long choose(long n, long r, long p) {
+	static long choose(long n, long r, long p) {
 		return fac[(int)n] * inv[(int)r] % p * inv[(int)(n - r)] % p;
 	}
-    class FastIO {
-        private BufferedReader br;
-        private BufferedWriter bw;
-        private StringTokenizer st;
- 
-        // Constructor to initialize input and output
-        public FastIO() {
-            br = new BufferedReader(new InputStreamReader(System.in));
-            bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        }
- 
-        // Method to read next line
-        public String nextLine() throws IOException {
-            return br.readLine();
-        }
- 
-        // Method to read next token
-        public String next() throws IOException {
-            while (st == null || !st.hasMoreElements()) {
-                st = new StringTokenizer(br.readLine());
-            }
-            return st.nextToken();
-        }
- 
-        // Method to read an integer
-        public int nextInt() throws IOException {
-            return Integer.parseInt(next());
-        }
- 
-        // Method to read a long
-        public long nextLong() throws IOException {
-            return Long.parseLong(next());
-        }
- 
-        // Method to read a double
-        public double nextDouble() throws IOException {
-            return Double.parseDouble(next());
-        }
- 
-        // Method to read an integer array
-        public int[] readIntArray(int size) throws IOException {
-            int[] arr = new int[size];
-            for (int i = 0; i < size; i++) {
-                arr[i] = nextInt();
-            }
-            return arr;
-        }
- 
-        // Method to read a long array
-        public long[] readLongArray(int size) throws IOException {
-            long[] arr = new long[size];
-            for (int i = 0; i < size; i++) {
-                arr[i] = nextLong();
-            }
-            return arr;
-        }
- 
-        // Method to print a string without a newline
-        public void print(String str) throws IOException {
-            bw.write(str);
-            bw.flush();
-        }
-        // Method to print an integer without a newline
-        public void print(int str) throws IOException {
-            bw.write(str);
-            bw.flush();
-        }
+}
 
-         // Method to print a char without a newline
-        public void print(char str) throws IOException {
-            bw.write(str);
-            bw.flush();
-        }
- 
-        // Method to print a string followed by a newline
-        public void println(String str) throws IOException {
-            bw.write(str + "\n");
-            bw.flush();
-        }
- 
-        // Method to print an integer followed by a newline
-        public void println(int num) throws IOException {
-            bw.write(num + "\n");
-            bw.flush();
-        }
+class FastIO {
+    private static final int BUFFER_SIZE = 1 << 16; // 64KB buffers
+    private final DataInputStream din;
+    private final byte[] buffer;
+    private int bufferPointer, bytesRead;
+    
+    private final BufferedOutputStream out;
+    private final byte[] outBuffer;
+    private int outPointer;
 
-        public void println() throws IOException {
-            bw.write("\n");
-            bw.flush();
-        }
-
-        //Method of print double
-        public void println(double num) throws IOException {
-            bw.write(num + "\n");
-            bw.flush();
-        }
- 
-        // Method to print a long followed by a newline
-        public void println(long num) throws IOException {
-            bw.write(num + "\n");
-            bw.flush();
-        }
- 
-        // Method to print an integer array
-        public void printArray(int[] arr) throws IOException {
-            for (int i = 0; i < arr.length; i++) {
-                bw.write(arr[i] + (i == arr.length - 1 ? "" : " "));
-            }
-            bw.write("\n");
-            bw.flush();
-        }
- 
-        // Method to print a long array
-        public void printArray(long[] arr) throws IOException {
-            for (int i = 0; i < arr.length; i++) {
-                bw.write(arr[i] + (i == arr.length - 1 ? "" : " "));
-            }
-            bw.write("\n");
-            bw.flush();
-        }
+    public FastIO() {
+        din = new DataInputStream(System.in);
+        buffer = new byte[BUFFER_SIZE];
+        bufferPointer = bytesRead = 0;
         
-        // Method to print an ArrayList of integers
-        public void printList(List<Integer> list) throws IOException {
-            for (int i = 0; i < list.size(); i++) {
-                bw.write(list.get(i) + (i == list.size() - 1 ? "" : " "));
+        out = new BufferedOutputStream(System.out);
+        outBuffer = new byte[BUFFER_SIZE];
+        outPointer = 0;
+    }
+
+    // High-performance primitive integer reader (bypasses StringTokenizer)
+    public int nextInt() throws IOException {
+        int ret = 0;
+        byte c = read();
+        while (c <= ' ') {
+            c = read();
+        }
+        boolean neg = (c == '-');
+        if (neg) {
+            c = read();
+        }
+        do {
+            ret = ret * 10 + c - '0';
+        } while ((c = read()) >= '0' && c <= '9');
+
+        if (neg) return -ret;
+        return ret;
+    }
+
+    // High-performance primitive long reader
+    public long nextLong() throws IOException {
+        long ret = 0;
+        byte c = read();
+        while (c <= ' ') {
+            c = read();
+        }
+        boolean neg = (c == '-');
+        if (neg) {
+            c = read();
+        }
+        do {
+            ret = ret * 10 + c - '0';
+        } while ((c = read()) >= '0' && c <= '9');
+
+        if (neg) return -ret;
+        return ret;
+    }
+
+    // High-performance primitive double reader
+    public double nextDouble() throws IOException {
+        double ret = 0, div = 1;
+        byte c = read();
+        while (c <= ' ') {
+            c = read();
+        }
+        boolean neg = (c == '-');
+        if (neg) {
+            c = read();
+        }
+        do {
+            ret = ret * 10 + c - '0';
+        } while ((c = read()) >= '0' && c <= '9');
+
+        if (c == '.') {
+            while ((c = read()) >= '0' && c <= '9') {
+                ret += (c - '0') / (div *= 10);
             }
-            bw.write("\n");
-            bw.flush();
         }
 
-        public void printLongList(List<Long> list) throws IOException {
-            for (int i = 0; i < list.size(); i++) {
-                bw.write(list.get(i) + (i == list.size() - 1 ? "" : " "));
-            }
-            bw.write("\n");
-            bw.flush();
-        }
+        if (neg) return -ret;
+        return ret;
+    }
 
-        // Flush the output stream
-        public void flush() throws IOException {
-            bw.flush();
+    // High-performance primitive character writer
+    public void print(char c) throws IOException {
+        if (outPointer == BUFFER_SIZE) {
+            flushBuffer();
         }
- 
-        // Close input and output streams
-        public void close() throws IOException {
-            br.close();
-            bw.close();
+        outBuffer[outPointer++] = (byte) c;
+    }
+
+    // High-performance primitive integer writer (No String allocations)
+    public void print(int i) throws IOException {
+        if (i == 0) {
+            print('0');
+            return;
+        }
+        if (i < 0) {
+            print('-');
+            i = -i;
+        }
+        int index = 0;
+        byte[] temp = new byte[12];
+        while (i > 0) {
+            temp[index++] = (byte) ((i % 10) + '0');
+            i /= 10;
+        }
+        while (index > 0) {
+            print((char) temp[--index]);
         }
     }
+
+    public void print(String str) throws IOException {
+        for (int i = 0; i < str.length(); i++) {
+            print(str.charAt(i));
+        }
+    }
+
+    public void println(int i) throws IOException {
+        print(i);
+        print('\n');
+    }
+
+    public void println(String str) throws IOException {
+        print(str);
+        print('\n');
+    }
+
+    private byte read() throws IOException {
+        if (bufferPointer == bytesRead) {
+            fillBuffer();
+        }
+        return buffer[bufferPointer++];
+    }
+
+    private void fillBuffer() throws IOException {
+        bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE);
+        if (bytesRead == -1) {
+            buffer[0] = -1;
+        }
+    }
+
+    private void flushBuffer() throws IOException {
+        if (outPointer == 0) return;
+        out.write(outBuffer, 0, outPointer);
+        outPointer = 0;
+    }
+
+    public void flush() throws IOException {
+        flushBuffer();
+        out.flush();
+    }
+
+    public void close() throws IOException {
+        flush();
+        din.close();
+        out.close();
+    }
+}
 }
 class Pair {
-    long first, second;
-    Pair(long a, long b) {
+    int first, second;
+    // Pair(long a, long b) {
+    //     this.first = a;
+    //     this.second = b;
+    // }
+    Pair(int a, int b) {
         this.first = a;
         this.second = b;
     }
