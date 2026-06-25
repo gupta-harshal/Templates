@@ -35,22 +35,18 @@
 import java.io.*;
 import java.util.*;
 
-public class Main {
+public class Main extends MyTemplate.Calc {
     public static void main(String[] args) throws IOException {
         MyTemplate.FastIO jio = new MyTemplate().new FastIO();
-        int t = jio.nextInt();
-        
-        while (t-- > 0) {
-            int n=jio.nextInt();
-        }
+        int n = jio.nextInt();        
         jio.flush();
     }
 }
 /*end here--------------------*/
 class MyTemplate {
-     class Calc{
+     static class Calc{
         // Using Rabin Karp to calculate the hash of the String
-        public long[] stringHash(String s){
+        public static long[] stringHash(String s){
             int n=s.length();
             int m=(int)1e9 + 9;
             long pow[]=new long[n];
@@ -67,7 +63,7 @@ class MyTemplate {
 
         }
 
-        public ArrayList<Integer> generatePrimes(int n) {
+        public static ArrayList<Integer> generatePrimes(int n) {
             // Create an array to track prime status
             boolean[] isPrime = new boolean[n + 1];
             ArrayList<Integer> primes = new ArrayList<>();
@@ -97,7 +93,7 @@ class MyTemplate {
             return primes;
         }
             
-        public long GCD(long a,long b){
+        public static long gcd(long a,long b){
             if(a<b){
                 long temp=a;
                 a=b;
@@ -106,9 +102,9 @@ class MyTemplate {
             if(b==0){
                 return a;
             }
-            return GCD(b,a%b);
+            return gcd(b,a%b);
         }
-        public int GCD(int a,int b){
+        public static int gcd(int a,int b){
             a=Math.abs(a);
             b=Math.abs(b);
             if(a<b){
@@ -119,21 +115,58 @@ class MyTemplate {
             if(b==0){
                 return a;
             }
-            return GCD(b,a%b);
+            return gcd(b,a%b);
         }
-        public void swap(int a,int b){
+        public static void swap(int a,int b){
             int temp=a;
             a=b;
             b=temp;
         }
-        public void swap(long a,long b){
+        public static void swap(long a,long b){
             long temp=a;
             a=b;
             b=temp;
         }
+        public static int lowerBound(int[] arr, int target) {
+        return lowerBound(arr, 0, arr.length, target);
     }
 
-    public class BinomialCoefficients {
+    public static int lowerBound(int[] arr, int left, int right, int target) {
+        int low = left;
+        int high = right; 
+        
+        while (low < high) {
+            int mid = low + (high - low) / 2;
+            if (arr[mid] >= target) {
+                high = mid; 
+            } else {
+                low = mid + 1; 
+            }
+        }
+        return low;
+    }
+
+    public static int upperBound(int[] arr, int target) {
+        return upperBound(arr, 0, arr.length, target);
+    }
+
+    public static int upperBound(int[] arr, int left, int right, int target) {
+        int low = left;
+        int high = right;
+        
+        while (low < high) {
+            int mid = low + (high - low) / 2;
+            if (arr[mid] > target) {
+                high = mid; 
+            } else {
+                low = mid + 1; 
+            }
+        }
+        return low;
+    }
+    }
+
+    static class BinomialCoefficients {
 	private static final int MAXN = (int)1e6;
 	private static long[] fac = new long[MAXN + 1];
 	private static long[] inv = new long[MAXN + 1];
